@@ -1,0 +1,75 @@
+<script>
+     //1.匹配number字面量的正则表达式
+     RegExp("^(((.?(0|([1-9][0-9]*)))|((0|([1-9][0-9]*)).?)|(0|([1-9].?[0-9]*)) | (0.?[0-9]+)|([1-9]+.?[0-9]+) | ([0-9]+e(0|([1-9][0-9]*)))) | (0b[0-1]+) | (0o[0-7]+) | (0x([0-9]+|[a-f]+|[A-F]+))$")
+
+    //2.utf8编码函数
+    function utf8Encode(simpleCharacter){
+
+        let codePoint = simpleCharacter.codePointAt(0);
+
+        if(codePoint <= 0x007f) { //ascii范围
+
+            return codePoint.toString(2);//将16进制转化为二进制
+        }
+
+        let binaryStr = codePoint.toString(2);
+
+        //编码占两个字节，高位字节首部从110开始，低位字节首部从10开始
+        if(codePoint >= 0x0080 && codePoint <= 0x07FF) {
+
+            //从低位开始取六位
+            let lowStr = binaryStr.substr(-6,6)
+            let highStr = binaryStr.substr(0,binaryStr.length - 6);
+
+            highStr = "110" + fillZero(highStr,5);
+            lowStr = "10" + lowStr;
+
+            return highStr + lowStr;
+        }
+
+        //编码值占三个字节，第一个字节以1110开头，后两个字节以10开头的二进制
+        if(codePoint >= 0x0800 && codePoint <= 0xD7FF || codePoint >= 0xE000 && codePoint <= 0xFFFF) {
+
+            let lowStr = binaryStr.substr(-6,6);
+            let middleStr = binaryStr.substr(12 - binaryStr.length,6);
+            let highStr = binaryStr.substr(0,binaryStr.length - 12);
+
+            highStr = "1110" + fillZero(highStr,4);
+            middleStr = "10" + fillZero(middleStr,6);
+            lowStr = "10" + lowStr;
+
+            return highStr + middleStr + lowStr;
+        }
+
+        //编码值占4个字节，第一个字节以11110开头，后面字节以10开头
+        if(codePoint >= 0x0100000 && codePoint <= 0x10FFFF) {
+
+            let lowStr = binaryStr.substr(-6,6);
+            let middleLowStr = binaryStr.substr(12 - binaryStr.length,6);
+            let middleHighStr = binaryStr.substr(18 - binaryStr.length,6);
+            let highStr = binaryStr.substr(0,binaryStr.length - 24);
+
+            highStr = "11110" + fillZero(highStr,3);
+            middleHighStr = "10" + fillZero(middleHighStr,6);
+            middleLowStr = "10" + middleLowStr;
+            lowStr = "10" + lowStr;
+
+            return highStr + middleStr + lowStr;
+        }
+
+        return "";
+    }
+
+    function fillZero(filledStr,reachToLength){
+
+        let currentFilledStrLength = filledStr.length;
+        for(let i = 0 ; i < reachToLength - currentFilledStrLength ; i ++){
+
+           filledStr = "0" + filledStr;
+        }
+
+        return filledStr;
+    }
+
+    //3.匹配String字面量的正则（暂时没理解）
+</script>
