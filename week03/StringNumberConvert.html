@@ -1,0 +1,87 @@
+<script>
+    
+    //字符串转化为数字（16，10，8，2）
+    function convertStringToNumber(string,format){
+          
+        //通过环境变量中的arguments判断参数是否存在，没有format则默认为10进制
+        if(arguments.length < 2) {
+
+            format = 10;
+        }
+
+        var charArr = string.split('');
+
+        var number = 0;
+        var i = 0;
+        while(i < charArr.length && charArr[i] != '.'){
+
+            number = number * format;
+
+            number += charArr[i].codePointAt(0) - '0'.codePointAt(0);
+
+            i++;
+        }
+
+        //当碰到.的时候，直接过
+        if(charArr[i] == '.'){
+
+            i++;
+        }
+
+        //小数点后面
+        var factory = 1;
+        while(i < charArr.length){
+
+            factory *= format;
+            number += (charArr[i].codePointAt(0) - '0'.codePointAt(0)) / factory;
+
+            i++;
+        }
+    
+
+        return number;
+    }
+
+    // function convertDecialToFormat(number,format){
+
+    //     var leftNumber = number;
+    //     var formatDataArr = [];
+
+    //     while(leftNumber != 0) {
+
+    //         formatDataArr.push(leftNumber % format);
+    //         leftNumber = (leftNumber - leftNumber % format) / format;
+    //     }
+
+    //     number = 0;
+    //     for(var i = formatDataArr.length - 1 ; i >= 0 ; i --) {
+
+    //         if(format == 8 || format == 2) {
+
+    //             number = number * 10; 
+    //             number += formatDataArr[i];
+    //         }else { //16进制
+
+                
+    //         }
+    //     }
+    // }
+
+    // console.log(convertStringToNumber("1234.123",10));
+
+    //将数字转化为字符串
+    function convertNumberToString(number,format){
+
+        var string = "";
+
+        var tmpNumber = number;
+        while(tmpNumber > 0){
+
+            string = String(tmpNumber % format) + string;
+
+            tmpNumber = Math.floor(tmpNumber / format);
+        }
+
+        return string;
+    }
+</script>
