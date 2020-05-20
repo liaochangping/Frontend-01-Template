@@ -1,0 +1,209 @@
+<script>
+
+    //除了javascript内置的以下几个全局对象外，在创建这几个全局对象的时候，同时被创建的对象的路径的获取.以下使用广度优先搜索进行所有全局对象的获取
+    // let queue = [
+    //    eval,
+    //    isFinite,
+    //    isNaN,
+    //    parseFloat,
+    //    parseInt,
+    //    decodeURI,
+    //    decodeURIComponent,
+    //    encodeURI,
+    //    encodeURIComponent,
+    //    Array,
+    //    Date,
+    //    RegExp,
+    //    Promise,
+    //    Proxy,
+    //    Map,
+    //    WeakMap,
+    //    Set,
+    //    WeakSet,
+    //    Function,
+    //    Boolean,
+    //    String,
+    //    Number,
+    //    Symbol,
+    //    Object,
+    //    Error,
+    //    EvalError,
+    //    RangeError,
+    //    ReferenceError,
+    //    SyntaxError,
+    //    TypeError,
+    //    URIError,
+    //    ArrayBuffer,
+    //    SharedArrayBuffer,
+    //    DataView,
+    //    Float32Array,
+    //    Float64Array,
+    //    Int8Array,
+    //    Int16Array,
+    //    Int32Array,
+    //    Uint8Array,
+    //    Uint16Array,
+    //    Uint32Array,
+    //    Uint8ClampedArray,
+    //    Atomics,
+    //    JSON,
+    //    Math,
+    //    Reflect
+    // ];
+
+    // var set = new Set();
+
+    // //降低一个对象取出来
+    // let current;
+    // while(queue.length) {
+
+    //      current = queue.shift();
+
+    //     if(set.has(current)) {
+
+    //         continue;
+    //     }
+
+    //     set.add(current);
+
+    //     if(typeof(current) === "Null" || typeof(current) === "undefined") {
+
+    //        continue;
+    //     }
+        
+    //     //对于内置对象，我们不能通过for in的方式获取到对应的key，我们需要通过Object.getOwnPropertyNames来获取到对应的keys
+    //     for(let p of Object.getOwnPropertyNames(current)){
+            
+    //         //获取某个属性的属性描述信息
+    //         var property = Object.getOwnPropertyDescriptor(current,p);
+
+            
+
+    //         //数值属性
+    //         if(property.hasOwnProperty("value") && property.value instanceof Object) {
+
+    //             queue.push(property.value);
+    //         }
+
+    //         //access属性
+    //         if(property.hasOwnProperty("get")){
+
+    //             queue.push(property.get);
+    //         }
+
+    //         if(property.hasOwnProperty("set")){
+
+    //             queue.push(property.set);
+    //         }
+    //      }
+    // }
+
+    //找出所有的全局对象并输出访问路径
+    let global = [
+       "eval",
+       "isFinite",
+       "isNaN",
+       "parseFloat",
+       "parseInt",
+       "decodeURI",
+       "decodeURIComponent",
+       "encodeURI",
+       "encodeURIComponent",
+       "Array",
+       "Date",
+       "RegExp",
+       "Promise",
+       "Proxy",
+       "Map",
+       "WeakMap",
+       "Set",
+       "WeakSet",
+       "Function",
+       "Boolean",
+       "String",
+       "Number",
+       "Symbol",
+       "Object",
+       "Error",
+       "EvalError",
+       "RangeError",
+       "ReferenceError",
+       "SyntaxError",
+       "TypeError",
+       "URIError",
+       "ArrayBuffer",
+       "SharedArrayBuffer",
+       "DataView",
+       "Float32Array",
+       "Float64Array",
+       "Int8Array",
+       "Int16Array",
+       "Int32Array",
+       "Uint8Array",
+       "Uint16Array",
+       "Uint32Array",
+       "Uint8ClampedArray",
+       "Atomics",
+       "JSON",
+       "Math",
+       "Reflect"
+    ];
+
+    let queue = [];
+    for(let p of global) {
+
+        queue.push({
+
+            path:[p],
+            object:this[p],
+        })
+    }
+    let set = new Set();
+
+    while(queue.length) {
+
+        let currentObject = queue.shift();
+
+        if(set.has(currentObject.object)){
+            continue;
+        }
+        
+        //去除对象是Null或者undefined，则过滤掉
+        if(typeof(currentObject.object) === "Null" || typeof(currentObject.object) === "undefined"){
+            continue;
+        }
+
+        set.add(currentObject.object);
+        
+        console.log(currentObject.path.join('.'));
+        for(let p of Object.getOwnPropertyNames(currentObject.object)) {
+
+             let property = Object.getOwnPropertyDescriptor(currentObject.object,p);
+
+             if(property.hasOwnProperty("value") && property["value"] instanceof Object){
+                
+                 queue.push({
+                     path:currentObject.path.concat([p]),
+                     object:property["value"],
+                 })
+             }
+
+             if(property.hasOwnProperty("get") && property["get"] instanceof Object) {
+                
+                 queue.push({
+                     path:currentObject.path.concat([p]),
+                     object:property["get"],
+                 })
+             }
+
+             if(property.hasOwnProperty("set") && property["set"] instanceof Object) {
+
+                 queue.push({
+                     path:currentObject.path.concat([p]),
+                     object:property["set"],
+                 })
+             }
+         }
+    }
+
+</script>
