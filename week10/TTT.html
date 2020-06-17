@@ -1,0 +1,268 @@
+<html>
+    <head>
+         <style> 
+             span {
+
+                 display: inline-block;
+                 width: 100px;
+                 height: 100px;
+                 margin: 2px;
+                 line-height: 100px;
+                 background-color: green;
+                 text-align: center;
+                 vertical-align: middle;
+             }
+        </style>
+    </head>
+    <body>
+        <div class="qp">
+        </div>
+        <script>
+            var pattern = [
+                [0,0,0],
+                [0,0,0],
+                [0,0,0],
+            ];
+            var color = 1;//表示⭕️,2表示❌
+
+            //设定棋谱
+            let openings = new Map();
+            
+            //如果优先让机器走，则根据我们设定的这个规则先走。
+            openings.set(pattern.toString() + "2",{point:[1,1],result:0});
+
+            function show(){
+
+                let container = document.getElementsByClassName('qp')[0];
+                container.innerHTML = "";
+
+                let el,lineContainer ;
+                pattern.forEach((val,index)=>{
+
+                    lineContainer = document.createElement('div');
+                    val.forEach((item,subIndex)=>{
+
+                        el = document.createElement('span');
+
+                        if(item == 2) {
+
+                            el.innerHTML = "❌";
+                        }else if(item == 1){
+
+                            el.innerHTML = "⭕️";
+                        }
+                        el.addEventListener('click',()=>{
+                            
+                            userMove(pattern, index,subIndex);
+                        })
+                        lineContainer.appendChild(el);
+                    });
+                    container.appendChild(lineContainer);
+                });
+            }
+
+            function userMove(pattern, x, y){
+
+                pattern[x][y] = color;
+
+                show();
+
+                //换成对手
+                color = 3 - color;
+                
+                //判断是否已经结束了
+                if(isWin(pattern,pattern[x][y])) {
+
+                    alert("win");
+                    return;
+                }
+
+                computerMove(pattern);
+            }
+
+            function computerMove(pattern){
+
+                //根据对方的走向，选择一个最好的走向
+                let result = bestChoice(pattern,color);
+                if(result.point) {
+             
+                    //[x,y]对应数组的[y][x]
+                    pattern[result.point[1]][result.point[0]] =  color;
+                }
+
+                show();
+
+                color = 3 - color;
+
+                //判断是否已经结束了
+                if(result.point && isWin(pattern,pattern[result.point[1]][result.point[0]])) {
+
+                    alert("win");
+                }
+            }
+
+            //抽象里面的逻辑
+            function isWin(pattern, color){
+
+                let win = false; 
+                //横向
+                for(let i = 0 ; i < 3; i ++){
+
+                    win  = true ;
+                    for(let j = 0; j < 3; j ++) {
+
+                        if(pattern[i][j] != color) {
+
+                            win = false;
+                            break;
+                        }
+                    }
+                    if(win) {
+
+                        return true;
+                    }
+                }
+
+                //竖向
+                for(let j = 0 ; j < 3; j ++){
+
+                    win  = true ;
+                    for(let i = 0; i < 3; i ++) {
+
+                        if(pattern[i][j] != color) {
+
+                            win = false;
+                            break;
+                        }
+                    }
+                    if(win) {
+
+                        return true;
+                    }
+                }
+
+
+                //正斜
+                win = true;
+                for(let i = 0 ; i < 3; i ++){
+
+                    if(pattern[i][i] != color) {
+
+                        win = false;
+                        break;
+                    }
+                }
+
+                if(win) {
+
+                    return true;
+                }
+
+                //反斜
+                win = true;
+                for(let i = 0 ; i < 3; i ++){
+
+                    if(pattern[i][2-i] != color) {
+
+                        win = false;
+                        break;
+                    }
+                }
+
+                if(win) {
+
+                   return true;
+                }
+
+                return false;
+            }
+
+            function clone(pattern){
+                
+                return JSON.parse(JSON.stringify(pattern));
+            }
+
+            function willWin(pattern,color){
+
+                for(let i = 0; i < 3; i ++){
+
+                    for(let j = 0 ; j < 3; j ++){
+
+                        if(pattern[i][j] !== 0){
+                            continue;
+                        }
+
+                        let clonePattern = clone(pattern);
+                        clonePattern[i][j] = color;
+                        if(isWin(clonePattern,color)) {
+
+                            return [j,i];
+                        }
+                    }
+                }
+
+                return null;
+            }
+
+            function bestChoice(pattern,color){
+                //根据当前pattern，让机器按照指定的棋谱走。
+                if(openings.has(pattern.toString() + "2")) {
+
+                    return openings.get(pattern.toString());                   
+                }
+
+                //如果自己已经有两个连续的，且当前是自己走，则直接赢
+                let point = null;
+                if(point = willWin(pattern,color)){
+
+                    return {
+
+                        point:point,
+                        result:1,
+                    }
+                }
+
+
+                //开始尝试走，判断
+                let result = -1;
+                let opposite = null;
+                let newPattern = null;
+                outer:for(let i = 0; i < 3; i ++){
+
+                    for(let j = 0; j < 3; j ++) {
+
+                        if(pattern[i][j] != 0){
+                            continue;
+                        }
+
+                        newPattern = clone(pattern);
+                        //表示当前已经下了该布，再判断当前对方的最好选择。
+                        newPattern[i][j] = color;
+
+                        //根据对方的最好选择来作出抉择
+                        opposite = bestChoice(newPattern,3 - color)
+                        if(- opposite.result >= result) {
+
+                            result = - opposite.result;
+                            point = [j,i];
+                        }
+
+                        if(result == 1){
+
+                            break outer;
+                        }
+                    }
+                }
+
+                //如果point为null，则表示平局
+                return {
+
+                    point:point,
+                    result:point ? result : 0
+                }
+            }
+
+            show();
+        </script>
+    </body>
+</html>
