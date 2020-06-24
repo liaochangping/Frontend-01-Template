@@ -1,0 +1,304 @@
+<html>
+   <head>
+       <style>
+           .cell {
+
+               display: inline-block;
+               width:6px;
+               height: 6px;
+               background-color: gray;
+               border-bottom: solid 1px white; 
+               border-right: solid 1px white;
+               vertical-align: middle;  
+           }
+           .container {
+
+               width:701px;
+           }
+       </style>
+   </head>
+   <body>
+       <div class="container">
+
+       </div>
+       <script>
+
+           class BinaryHeap {
+
+               constructor(arr, compare){
+
+                   this.compare = compare;
+                   this.createHeap(arr);
+               }
+
+               //建堆
+               createHeap(arr){
+
+                   //如果数组不存在或者数组长度小于等于1，则不处理
+                   if(!arr || arr.length <= 1) return;
+
+                   let lastNodeIndex = arr.length - 1;
+                   let swapIndex, currentIndex = 0;
+
+                   //从第一个非叶子节点开始进行从上往下的堆化处理
+                   for(let index = parseInt(lastNodeIndex / 2); index > 0; index --) {
+
+                       currentIndex = index;
+                       while(true) {
+
+                            swapIndex = currentIndex;
+                            if(2 * currentIndex <= lastNodeIndex && this.compare(arr[2*currentIndex],arr[currentIndex]) < 0) {
+
+                                swapIndex = 2 * currentIndex;
+                            }
+
+                            if(2 * currentIndex + 1 <= lastNodeIndex && this.compare(arr[2*currentIndex + 1],arr[swapIndex]) < 0) {
+
+                                swapIndex = 2 * currentIndex + 1;
+                            }
+
+                            if(swapIndex == currentIndex){
+
+                                break;
+                            }
+
+                            let tmp = arr[currentIndex];
+                            arr[currentIndex] = arr[swapIndex];
+                            arr[swapIndex] = tmp;
+
+                            currentIndex = swapIndex;
+                        }
+                   }
+
+                   this.arr = arr;
+               }
+               
+               //插入尾部，进行从下往上的堆化
+               insert(value){
+
+                    this.arr.push(value);
+
+                    let swapIndex = 0;
+                    let lastNodeIndex = this.arr.length - 1;
+                    //开始堆化
+                    let index = parseInt(lastNodeIndex / 2);
+                    while(index >= 1) {
+
+                        swapIndex = index;
+                        if(2* index <= lastNodeIndex && this.compare(this.arr[2 * index],this.arr[index]) < 0) {
+
+                            swapIndex = 2 * index;
+                        }
+
+                        if(2 * index + 1 <= lastNodeIndex && this.compare(this.arr[2 * index + 1], this.arr[swapIndex] ) < 0) {
+
+                            swapIndex = 2 * index + 1;
+                        }
+
+                        if(swapIndex == index) break;
+
+                        let tmp = this.arr[swapIndex];
+                        this.arr[swapIndex] = this.arr[index];
+                        this.arr[index] = tmp;
+
+                        index = parseInt(index / 2);
+                    }
+               }
+
+               //删除头部,进行堆化
+               take(){
+
+                   if(!this.arr || this.arr.length <= 1) return -1;
+
+                   let minValue = this.arr[1];
+
+                   let lastIndex = this.arr.length - 1;
+                   this.arr[1] = this.arr[lastIndex];
+                   this.arr.pop();
+                   lastIndex = lastIndex - 1;
+
+                   //开始进行从顶部往底部堆化
+                   let swapIndex = 1;
+                   let index = 1;
+                   while(index < lastIndex) {
+
+                       if(2 * index <= lastIndex && this.compare(this.arr[2 * index],this.arr[index]) < 0) {
+
+                           swapIndex = 2 * index;
+                       }
+
+                       if(2 * index + 1 <= lastIndex && this.compare(this.arr[2 * index + 1],this.arr[swapIndex]) < 0) {
+
+                           swapIndex = 2 * index + 1;
+                       }
+
+                       if(swapIndex == index) break;
+
+                       let tmp = this.arr[swapIndex];
+                       this.arr[swapIndex] = this.arr[index];
+                       this.arr[index] = tmp;
+
+                       index = swapIndex;
+                   }
+
+                   return minValue;
+               }
+           }
+           
+        //    class Sorted {
+
+        //        constructor(arr, compare){
+
+        //          this.arr = arr;
+        //          this.compare = compare;
+        //        }
+
+        //        take(){
+
+        //             if(!this.arr || this.arr.length <= 0) return;
+
+        //             let minIndex = 0;
+        //             let min = this.arr[0];
+        //             for(var index = 0 ; index < this.arr.length ; index ++){
+
+        //                 if(this.compare(this.arr[index],min) < 0) {
+
+        //                     min  = this.arr[index];
+        //                     minIndex = index;
+        //                 }
+        //             }
+
+        //             this.arr[minIndex] = this.arr[--index];
+        //             this.arr.pop();
+
+        //             return min;
+        //        }
+
+        //        insert(value) {
+
+        //            this.arr.push(value);
+        //        }
+        //    }
+
+           var spaces = JSON.parse(localStorage.getItem("key")) ? JSON.parse(localStorage.getItem("key")) : new Array(10000).fill(0);
+           var queue = [];
+           var drawing = false;
+           
+           let container = document.getElementsByClassName('container')[0];
+           for(let i = 0; i < 100; i ++ ){
+
+               for(let j = 0 ; j < 100; j ++) {
+
+                   let element = document.createElement('div');
+                   element.addEventListener('mouseover',(e)=>{
+
+                       if(drawing) {
+
+                            element.style.backgroundColor = "black";
+                            spaces[i * 100 + j] = true;
+
+                            localStorage.setItem("key",JSON.stringify(spaces));
+                       }
+                   });
+                   element.classList.add('cell');
+                   if(spaces[i * 100 + j]) {
+
+                       element.style.backgroundColor = "black";
+                   }
+                   container.appendChild(element);
+               }
+           }
+
+           document.addEventListener('mousedown',(e)=>{
+
+               drawing = true;
+           });
+           document.addEventListener('mouseup',(e)=>{
+
+               drawing = false;
+           })
+
+           function sleep(t){
+
+            return new Promise(resolve=>{
+
+                setTimeout(resolve,t);
+            });
+           }
+
+           //start表示开始点，end表示结束点
+          async function searchPath(map, start, end){
+
+            //    queue.push(start);
+
+            //    queue = new Sorted([start],(a,b)=>distant(a) - distant(b));
+               queue = new BinaryHeap([,start],(a,b)=>distant(a) - distant(b));
+
+               container.children[start[0] * 100 + start[1]].style.backgroundColor = 'green';
+               container.children[end[0] * 100 + end[1]].style.backgroundColor = 'blue';
+
+               function distant([x, y]){
+
+                  return (end[0] - x) ** 2 + (end[1] - y) ** 2;
+               }
+                
+               //pre表示点的前一个点
+               async function insert([x,y], pre){
+
+                   //如果对应节点是灰色或者对应点是在边界的情况下，则退出
+                    if(map[x * 100 + y] || x < 0 || y < 0 || x >= 100 || y >= 100) {
+
+                        return;
+                    }
+                    
+                    await sleep(1);
+
+                    container.children[x * 100 + y].style.backgroundColor = 'green';
+
+                    if(x == 60 && y == 60) {
+
+                        console.log('sjdlfjlsdjflsjdfj');
+                    }
+
+                    map[x * 100 + y] = pre;
+
+                    //开始插入队列
+                    queue.insert([x,y]);
+                }
+
+               while(queue.arr.length > 1) {
+
+                   let [x, y] = queue.take();
+
+                   console.log(x + ',' + y);
+                   if(x == end[0] && y == end[1]) {
+
+                        let bestPath = [];
+                        while(x !== start[0] || y !== start[1]) {
+
+                            bestPath.push([x,y]);
+                            container.children[x * 100 + y].style.backgroundColor = 'red';
+                            [x, y] = map[x * 100 + y];
+                        }
+
+                       return bestPath;
+                   }
+
+                   //左右上下
+                  await insert([x-1, y],[x,y]);
+                  await insert([x+1, y],[x,y]);
+                  await insert([x, y-1],[x,y]);
+                  await insert([x, y+1],[x,y]);
+
+                  //斜边
+                  await insert([x - 1, y - 1],[x,y]);
+                  await insert([x + 1, y - 1],[x,y]);
+                  await insert([x - 1, y + 1],[x,y]);
+                  await insert([x + 1, y + 1],[x,y]);
+               }
+
+               return null;
+           }
+       </script>
+   </body>
+</html>

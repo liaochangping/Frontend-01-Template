@@ -1,0 +1,89 @@
+<html>
+    <head>
+        <style>
+            div {
+
+                display: inline-block;
+                width: 50px;
+                height: 50px;
+                border-radius: 25px;
+                background-color: gray;
+            }
+            .red.light {
+                background-color: red;
+            }
+            .green.light {
+                background-color: green;
+            }
+            .yellow.light {
+                background-color: yellow;
+            }
+        </style>
+    </head>
+    <body>
+        <div class="red"></div>
+        <div class="green"></div>
+        <div class="yellow"></div>
+        <script>
+            function go(){
+
+                showRed();
+                sleep(5000).then(resolve=>{
+
+                    showRed();
+                    sleep(5000).then(resolve=>{
+
+                        showYellow();
+
+                        return sleep(3000);
+                    }).then(resolve => {
+
+                        showGreen();
+
+                        return sleep(2000);
+                    }).then(resolve => {
+
+                        go();
+                    })
+                })
+            }
+
+            function sleep(t){
+
+                return new Promise(resolve=>{
+
+                    setTimeout(resolve,t);
+                });
+            }
+
+           function showRed(){
+
+                let list = document.getElementsByTagName('div');
+                for(let item of list){
+                    item.classList.remove('light');
+                }
+                document.getElementsByClassName('red')[0].classList.add('light');
+            }
+
+           function showGreen(){
+
+                let list = document.getElementsByTagName('div');
+                for(let item of list){
+                    item.classList.remove('light');
+                }
+                document.getElementsByClassName('green')[0].classList.add('light');
+            }
+
+           function showYellow(){
+
+                let list = document.getElementsByTagName('div');
+                for(let item of list){
+                    item.classList.remove('light');
+                }
+                document.getElementsByClassName('yellow')[0].classList.add('light');
+            }
+
+            go();
+        </script>
+    </body>
+</html>
