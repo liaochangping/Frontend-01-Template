@@ -1,0 +1,58 @@
+<head>
+    <style>
+        .Keywords {
+
+            color: red;
+        }
+        .WhiteSpace{
+
+            color:white;
+        }
+        .Identifier{
+
+            color: blue;
+        }
+        .Punctuator{
+
+            color:green;
+        }
+    </style>
+</head>
+<pre>
+    <code class="container">
+
+    </code>
+</pre>
+<script>
+    let container = document.getElementsByClassName('container')[0];
+
+    let regexp = /(function|new|return)|([ \r\n\t]+)|([a-zA-Z][a-zA-Z0-9]*)|([\(\)\{\}\;\,])/g
+    let regexpDictionary = ["Keywords","WhiteSpace","Identifier","Punctuator"]
+
+    let source = `
+    function sleep(t){
+        return new Promise(function(resolve){
+            setTimeout(resolve, t);
+        })
+    }
+    `
+    let lastIndex = 0;
+    let totalIndex = source.length;
+    do {
+        var result = regexp.exec(source);
+        lastIndex = regexp.lastIndex;
+        for(let index = 1; index <= 4 ; index ++){
+
+            if(result[index]) {
+
+                console.log(result[index],regexpDictionary[index - 1]);
+
+                let element = document.createElement('span');
+                element.classList.add(regexpDictionary[index - 1]);
+                element.innerText = result[index];
+                
+                container.appendChild(element);
+            }
+        }
+    } while (lastIndex < totalIndex);
+</script>

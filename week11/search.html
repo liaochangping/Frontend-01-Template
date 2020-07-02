@@ -255,11 +255,6 @@
 
                     container.children[x * 100 + y].style.backgroundColor = 'green';
 
-                    if(x == 60 && y == 60) {
-
-                        console.log('sjdlfjlsdjflsjdfj');
-                    }
-
                     map[x * 100 + y] = pre;
 
                     //开始插入队列
@@ -270,7 +265,6 @@
 
                    let [x, y] = queue.take();
 
-                   console.log(x + ',' + y);
                    if(x == end[0] && y == end[1]) {
 
                         let bestPath = [];
