@@ -1,0 +1,45 @@
+<script>
+    class Trie {
+
+        constructor(props){
+            this.root = Object.create(null);
+        }
+
+        insert(str){
+
+            let currentObj = this.root;
+            for(let c of str){
+
+                if(!currentObj[c]) currentObj[c] = Object.create(null);
+                currentObj = currentObj[c];
+            }
+            
+            if(!currentObj["eof"]) currentObj["eof"] = 0;
+            currentObj["eof"]++;
+        }
+
+        mostCount(){
+
+            let mostCount = 0;
+            let mostCountStr = "";
+
+            //使用递归的思路处理
+            var visit = (obj, word)=>{
+
+                if(obj["eof"] && parseInt(obj["eof"]) > mostCount) {
+                    mostCount = parseInt(obj["eof"])
+                    mostCountStr = word;
+                }
+                for(let key in obj){
+
+                    visit(obj[key],word + key);
+                }
+            }
+
+            visit(this.root,"");
+
+            return mostCountStr;
+        }
+
+    }
+</script>

@@ -1,0 +1,96 @@
+<html>
+    <head>
+        <style>
+            .dragable {
+                display: inline-block;
+                width: 100px;
+                height: 100px;
+                background-color: red;
+            }
+        </style>
+    </head>
+    <div class="container">
+        文字文字文字文字文字文字文字文字文字文字文字文字文字文字文字文字文字文字文字文字文字文字文字文字文字文字文字文字文字文字文字文字文字
+        文字文字文字文字文字文字文字文字文字文字文字文字文字文字文字文字文字文字文字文字文字文字文字文字文字文字文字文字文字文字文字文字文字文字
+        文字文字文字文字文字文字文字文字文字文字文字文字文字文字文字文字文字文字文字文字文字文字文字文字文字文字文字文字文字文字文字文字文字文字
+        文字文字文字文字文字文字文字文字文字文字文字文字文字文字文字文字文字文字文字文字文字文字文字文字文字文字文字文字文字文字文字文字文字文字
+        文字文字文字文字文字文字文字文字文字文字文字文字文字文字文字文字文字文字文字文字文字文字文字文字文字文字文字文字文字文字文字文字文字文字
+        文字文字文字文字文字文字文字文字文字文字文字文字文字文字文字文字文字文字文字文字文字文字文字文字文字文字文字文字文字文字文字文字文字文字
+        文字文字文字文字文字文字文字文字文字文字文字文字文字文字文字文字文字文字文字文字文字文字文字文字文字文字文字文字文字文字文字文字文字文字
+        <div class="dragable" />
+    </div>
+    <script>
+        let baseX = 0;
+        let baseY = 0;
+        let wordIntervalRange = [];
+        let dragable = document.getElementsByClassName('dragable')[0];
+
+        //获取所有文字之间的位置范围
+        //注意：range可以操作文本节点中每一个文字，所以使用range方便处理
+        let container = document.getElementsByClassName('container')[0];
+        let textNode = container.childNodes[0];
+        for(let index = 0; index < textNode.textContent.length; index++){
+
+            let range = document.createRange();
+            range.setStart(textNode,index);
+            range.setEnd(textNode,index);
+            wordIntervalRange.push(range);
+        }
+
+        dragable.addEventListener('mousedown',e=>{
+
+            let startX = e.clientX;
+            let startY = e.clientY;
+
+            let mouseMove = (event)=>{
+
+                let range = neastPosition(event);
+                 
+                 //range具有node相关的操作
+                range.insertNode(dragable);
+
+                // let x = event.clientX-startX + baseX;
+                // let y = event.clientY-startY + baseY;
+                
+                // dragable.style.transform = `translate(${x}px,${y}px)`;
+            };
+            let mouseUp = (event)=>{
+
+                baseX = event.clientX - startX + baseX;
+                baseY = event.clientY - startY + baseY;
+
+                document.removeEventListener("mousemove",mouseMove);
+                document.removeEventListener('mouseup',mouseUp);
+                document.removeEventListener('selectstart',wordSelect);
+            };
+            let wordSelect = (event)=>{
+
+                e.preventDefault(); 
+            };
+            document.addEventListener('mousemove',mouseMove); 
+            document.addEventListener('mouseup',mouseUp);     
+            document.addEventListener('selectstart',wordSelect);
+
+        });
+        
+        //计算出离当前点最近的一个文字间隙range
+        neastPosition = (event)=>{
+
+            let minDinstance = Infinity;
+            let neastRange;
+
+            for(let range of wordIntervalRange){
+                
+                //计算元素的位置
+                let rect = range.getBoundingClientRect();
+                if(minDinstance > (event.clientX - rect.x) ** 2 + (event.clientY - rect.y) ** 2) {
+
+                    minDinstance = (event.clientX - rect.x) ** 2 + (event.clientY - rect.y) ** 2;
+                    neastRange = range;
+                }
+            }
+
+            return neastRange;
+        }
+    </script>
+</html>

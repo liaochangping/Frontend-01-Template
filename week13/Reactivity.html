@@ -1,0 +1,96 @@
+<script>
+
+    //全局，用于保存对应的handle
+    var handles = new Map();
+    //
+    var reactivityDependences = [];
+    //
+    var reactivityProxy = new Map();
+
+    var object = {
+        a:{x:1},
+        b:2
+    };
+     
+    function proxy(target){
+        //代理
+
+        if(reactivityProxy.has(target)) {
+
+            return reactivityProxy[target];
+        }
+
+        let proxyObj = new Proxy(target,
+        {
+            get(obj,prop){
+
+                reactivityDependences.push([obj,prop]);
+
+                if(typeof obj[prop] === 'object') {
+
+                    return proxy(obj[prop]);
+                }
+
+                return obj[prop];
+            },
+            set(obj,prop,value){
+
+                obj[prop] = value;
+
+                if(handles.has(obj) && handles.get(obj).has(prop)) {
+
+                    let handleArray = handles.get(obj).get(prop);
+
+                    for(let handle of handleArray){
+
+                        handle();
+                    }
+                }
+                // return obj[prop];
+            }
+        });
+
+        reactivityProxy.set(target, proxyObj);
+        reactivityProxy.set(proxyObj,proxyObj);
+
+        return proxyObj;
+    }
+
+    function effect(handle){
+        
+        reactivityDependences = [];
+        handle();
+        for(let reactivityDependence of reactivityDependences){
+           
+            let [obj,prop] = reactivityDependence;
+            if(!handles.has(obj)) handles.set(obj,new Map());
+            if(!handles.get(obj).has(prop)) handles.get(obj).set(prop,[]);
+
+            handles.get(obj).get(prop).push(handle);
+        }
+    }
+
+    //test1----普通的proxy的单向绑定操作
+    // var effectObj;
+    // var proxyObj = new proxy(object);
+    // effect(()=>{effectObj = proxyObj.a;});
+    // console.log(effectObj);
+    // proxyObj.a = 10;
+    // console.log(effectObj);
+
+    //test2----相对复杂的proxy的单向绑定操作
+    // let v1,v2,v12;
+    // var proxy = new proxy(object);
+    // effect(()=>{v1 = proxy.a;})
+    // effect(()=>v2 = proxy.b)
+    // effect(()=>v12 = proxy.a + proxy.b);
+
+    //test3----对于被代理的对象是对象潜对象.
+    let v1 = 0;
+    let p = new proxy(object); //这样设置的代理也只是针对{a:xxxx}这个层级对象的代理监听。如果需要对里层的x:1进行代理监听，则。
+    effect(()=>v1 = p.a.x); 
+    console.log(v1);
+    p.a = {x:10212};
+    console.log(v1);
+
+</script>

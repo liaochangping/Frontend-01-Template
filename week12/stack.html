@@ -1,0 +1,43 @@
+<script>
+    function matchPunchor(source){
+
+        let stack = [];
+
+        for(let char of source){
+
+            if(char === '(' || char === '[' || char === '{') {
+
+                stack.push(char);
+            }
+
+            if(char === ')') {
+                if(stack[stack.length - 1] === '(')
+                   stack.pop();
+                else {
+                    return false;
+                }
+            }
+
+            if(char === ']') {
+
+                if(stack[stack.length - 1] === '[')
+                   stack.pop();
+                else {
+                    return false;
+                }
+            }
+
+            if(char === '}') {
+
+                if(stack[stack.length - 1] === '{')
+                   stack.pop();
+                else {
+                    return false;
+                }
+            }
+        }
+
+        if(stack.length === 0) return true;
+        return false;
+    }
+</script>
